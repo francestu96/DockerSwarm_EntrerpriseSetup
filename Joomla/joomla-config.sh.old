@@ -1,0 +1,8 @@
+#!/bin/bash
+cat installation/sql/mysql/joomla.sql | mysql -u ${DB_USER} -h ${DB_HOST} -p${DB_PASSWORD} ${DB_NAME}
+echo "INSERT INTO prfx_users ('user_id','name','username','email','password','block','sendEmail','registerDate','lastvisitDate','activation','params','lastResetTime','resetCount','otpKey','otep','requireReset') VALUES (1,'super','super','super@super.it','super','0','0','0000-00-00','0000-00-00','','','0000-00-00','0','','','0');" | mysql -u ${DB_USER} -h ${DB_HOST} -p${DB_PASSWORD} ${DB_NAME}
+
+sed -i "s/DB_HOST/${DB_HOST}/g" configuration.php
+sed -i "s/DB_USER/${DB_USER}/g" configuration.php
+sed -i "s/DB_PASSWORD/${DB_PASSWORD}/g" configuration.php
+sed -i "s/DB_NAME/${DB_NAME}/g" configuration.php
