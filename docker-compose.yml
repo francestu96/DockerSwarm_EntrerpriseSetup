@@ -1,23 +1,51 @@
 version: "2"
 
 services:
- database:
-  image: mariadb
-  network_mode: bridge
-  container_name: database
-  hostname: database
-  environment:
-   MYSQL_ROOT_PASSWORD: user
-   MYSQL_DATABASE: joomla
+  database:
+    image: mariadb
+    container_name: database
+    hostname: database
+    networks:
+      - custom_net
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: joomla
+  
+  phpmyadmin:
+    build:
+      context: PhpMyAdmin
+    container_name: my-phpmyadmin
+    depends_on:
+      - database
+    networks:
+      - custom_net
+    ports:
+     - "8081:80"
+    environment:
+      DB_HOST: database 
+      DB_USER: root
+      DB_PASSWORD: admin
 
- joomla: 
-  image: my-joomla
-  network_mode: bridge
-  container_name: my-joomla
-  ports: 
-   - "80:80"
-  environment:
-   DB_HOST: 172.17.0.4
-   DB_USER: root
-   DB_PASSWORD: user
-   DB_NAME: joomla
+  joomla: 
+    build:
+      context: Joomla
+    container_name: my-joomla
+    depends_on:
+      - phpmyadmin
+      - database
+    networks:
+      - custom_net
+    ports: 
+      - "80:80"
+    environment:
+      DB_HOST: database
+      DB_USER: root
+      DB_PASSWORD: admin
+      DB_NAME: joomla
+      JOOMLA_ADMIN_USER: admin
+      JOOMLA_ADMIN_PASS: admin
+      JOOMLA_ADMIN_EMAIL: admin@admin.it
+ 
+networks:
+  custom_net:
+    driver: bridge
