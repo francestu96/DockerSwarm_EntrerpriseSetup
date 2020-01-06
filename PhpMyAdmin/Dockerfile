@@ -11,7 +11,7 @@ RUN docker-php-ext-install mysqli
 ADD config.inc.php config.inc.php
 ADD set-env.sh /usr/local/bin/
 
-RUN chmod a+x /usr/local/bin/set-env.sh 
+RUN chmod a+x /usr/local/bin/set-env.sh; 
 RUN sed -i "3iset-env.sh" /usr/local/bin/docker-php-entrypoint
 
 CMD dockerize -wait tcp://$DB_HOST:3306 -timeout 20s apache2-foreground

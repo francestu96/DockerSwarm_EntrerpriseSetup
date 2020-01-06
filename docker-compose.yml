@@ -1,20 +1,20 @@
-version: "2"
+version: "3"
 
 services:
   database:
     image: mariadb
-    container_name: database
     hostname: database
     networks:
       - custom_net
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: joomla
-  
+
   phpmyadmin:
-    build:
-      context: PhpMyAdmin
-    container_name: my-phpmyadmin 
+    image: custom-phpmyadmin
+    deploy:
+      mode: replicated
+      replicas: 3
     depends_on:
      - database
     networks:
@@ -25,9 +25,7 @@ services:
       DB_PASSWORD: admin
 
   joomla: 
-    build:
-      context: Joomla
-    container_name: my-joomla
+    image: custom-joomla
     depends_on:
      - database
     networks:
@@ -40,19 +38,60 @@ services:
       JOOMLA_ADMIN_USER: admin
       JOOMLA_ADMIN_PASS: admin
       JOOMLA_ADMIN_EMAIL: admin@admin.it
- 
-  proxy:
-    build:
-      context: Proxy
-    container_name: proxy
+    deploy:
+      mode: replicated
+      replicas: 3
+   
+  prometheus:
+    image: custom-prometheus
     depends_on:
+      - database
       - joomla
       - phpmyadmin
-    ports:
-      - "80:80"
     networks:
       - custom_net
 
+  service-monitor:
+    image: custom-grafana
+    deploy:
+      mode: replicated
+      replicas: 3
+    depends_on:
+      - prometheus
+    networks:
+      - custom_net   
+    ports:
+      - 3000:3000   
+
+  proxy:
+    image: custom-proxy
+    depends_on:
+      - joomla
+      - phpmyadmin
+    networks:
+      - custom_net
+    ports:
+      - 80:80
+    deploy:
+      mode: replicated
+      replicas: 3
+  
+
+  cadvisor:
+    image: google/cadvisor
+    deploy:
+      mode: global
+    networks:
+      - custom_net
+
+  node-exporter:
+    image: prom/node-exporter
+    deploy:
+      mode: global
+    networks:
+      - custom_net
+
+
 networks:
   custom_net:
-    driver: bridge
+    driver: overlay
