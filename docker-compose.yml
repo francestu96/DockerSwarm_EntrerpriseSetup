@@ -11,21 +11,23 @@ services:
       MYSQL_DATABASE: joomla
 
   phpmyadmin:
-    image: custom-phpmyadmin
-    deploy:
-      mode: replicated
-      replicas: 3
+    image: custom-phpmyadmin:latest
+    #deploy:
+    #  mode: replicated
+    #  replicas: 3
     depends_on:
      - database
     networks:
       - custom_net
+    ports:
+      - 4000:80
     environment:
       DB_HOST: database 
       DB_USER: root
       DB_PASSWORD: admin
 
   joomla: 
-    image: custom-joomla
+    image: custom-joomla:latest
     depends_on:
      - database
     networks:
@@ -43,7 +45,7 @@ services:
       replicas: 3
    
   prometheus:
-    image: custom-prometheus
+    image: custom-prometheus:latest
     depends_on:
       - database
       - joomla
@@ -51,11 +53,11 @@ services:
     networks:
       - custom_net
 
-  service-monitor:
-    image: custom-grafana
-    deploy:
-      mode: replicated
-      replicas: 3
+  grafana:
+    image: custom-grafana:latest
+   # deploy:
+   #   mode: replicated
+   #   replicas: 3
     depends_on:
       - prometheus
     networks:
@@ -64,7 +66,7 @@ services:
       - 3000:3000   
 
   proxy:
-    image: custom-proxy
+    image: custom-proxy:latest
     depends_on:
       - joomla
       - phpmyadmin
@@ -72,9 +74,9 @@ services:
       - custom_net
     ports:
       - 80:80
-    deploy:
-      mode: replicated
-      replicas: 3
+   # deploy:
+   #   mode: replicated
+   #   replicas: 3
   
 
   cadvisor:

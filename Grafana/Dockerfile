@@ -1,6 +1,7 @@
 FROM grafana/grafana
 
-ENV GF_SERVER_DOMAIN=kvm1
+ENV GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/service-monitor
+#ENV GF_SERVER_ROOT_URL=http://localhost/service-monitor
 ENV GF_PATHS_PROVISIONING=conf/provisioning
 
 ENV GF_AUTH_ANONYMOUS_ENABLED=true
