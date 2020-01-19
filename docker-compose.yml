@@ -1,5 +1,9 @@
 version: "3"
 
+networks:
+  custom_net:
+    driver: overlay
+
 services:
   database:
     image: mariadb
@@ -12,15 +16,10 @@ services:
 
   phpmyadmin:
     image: custom-phpmyadmin:latest
-    #deploy:
-    #  mode: replicated
-    #  replicas: 3
     depends_on:
      - database
     networks:
       - custom_net
-    ports:
-      - 4000:80
     environment:
       DB_HOST: database 
       DB_USER: root
@@ -32,6 +31,10 @@ services:
      - database
     networks:
       - custom_net
+    volumes:
+      - /gfs/joomla-volume/components:/var/www/html/components
+      - /gfs/joomla-volume/administrator:/var/www/html/administrator
+      - /gfs/joomla-volume/images:/var/www/html/images
     environment:
       DB_HOST: database
       DB_USER: root
@@ -41,11 +44,12 @@ services:
       JOOMLA_ADMIN_PASS: admin
       JOOMLA_ADMIN_EMAIL: admin@admin.it
     deploy:
-      mode: replicated
-      replicas: 3
+      mode: global
    
   prometheus:
     image: custom-prometheus:latest
+    deploy:
+      mode: global
     depends_on:
       - database
       - joomla
@@ -55,15 +59,10 @@ services:
 
   grafana:
     image: custom-grafana:latest
-   # deploy:
-   #   mode: replicated
-   #   replicas: 3
     depends_on:
       - prometheus
     networks:
-      - custom_net   
-    ports:
-      - 3000:3000   
+      - custom_net
 
   proxy:
     image: custom-proxy:latest
@@ -74,10 +73,8 @@ services:
       - custom_net
     ports:
       - 80:80
-   # deploy:
-   #   mode: replicated
-   #   replicas: 3
-  
+    deploy:
+      mode: global  
 
   cadvisor:
     image: google/cadvisor
@@ -92,8 +89,3 @@ services:
       mode: global
     networks:
       - custom_net
-
-
-networks:
-  custom_net:
-    driver: overlay
