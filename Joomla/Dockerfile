@@ -19,6 +19,4 @@ RUN apt-get update && apt-get install -y \
 RUN chmod a+x /usr/local/bin/joomla-setup.sh
 RUN chown -R www-data:www-data .
 
-VOLUME /gfs
-
 CMD dockerize -wait tcp://$DB_HOST:3306 -timeout 20s joomla-setup.sh && apache2-foreground
