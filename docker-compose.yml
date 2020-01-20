@@ -24,6 +24,8 @@ services:
       DB_HOST: database 
       DB_USER: root
       DB_PASSWORD: admin
+    deploy:
+      mode: global
 
   joomla: 
     image: custom-joomla:latest
@@ -63,6 +65,10 @@ services:
       - prometheus
     networks:
       - custom_net
+    volumes:
+     - /gfs/grafana-volume/grafana.db:/var/lib/grafana/grafana.db
+    deploy:
+      mode: global
 
   proxy:
     image: custom-proxy:latest
