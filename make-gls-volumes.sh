@@ -1,6 +1,8 @@
 mkdir -p /gfs/joomla-volume/administrator
 mkdir -p /gfs/joomla-volume/components
 mkdir -p /gfs/joomla-volume/images
+mkdir -p /gfs/db-volume/data
+mkdir -p /gfs/db-volume/logs
 mkdir -p /gfs/grafana-volume/
 
 cp -R -n Joomla/administrator/. /gfs/joomla-volume/administrator

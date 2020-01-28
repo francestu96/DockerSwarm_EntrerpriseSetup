@@ -13,11 +13,11 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: joomla
+    volumes:
+      - /gfs/db-volume/data:/var/lib/mysql
 
   phpmyadmin:
     image: custom-phpmyadmin:latest
-    depends_on:
-     - database
     networks:
       - custom_net
     environment:
@@ -29,8 +29,6 @@ services:
 
   joomla: 
     image: custom-joomla:latest
-    depends_on:
-     - database
     networks:
       - custom_net
     volumes:
@@ -52,17 +50,11 @@ services:
     image: custom-prometheus:latest
     deploy:
       mode: global
-    depends_on:
-      - database
-      - joomla
-      - phpmyadmin
     networks:
       - custom_net
 
   grafana:
     image: custom-grafana:latest
-    depends_on:
-      - prometheus
     networks:
       - custom_net
     volumes:
@@ -72,9 +64,6 @@ services:
 
   proxy:
     image: custom-proxy:latest
-    depends_on:
-      - joomla
-      - phpmyadmin
     networks:
       - custom_net
     ports:
