@@ -1,15 +1,17 @@
-version: "3"
+version: "3.5"
 
 networks:
-  custom_net:
-    driver: overlay
+  public:
+    name: public
+  private:
+    name: private
 
 services:
   database:
     image: mariadb
     hostname: database
     networks:
-      - custom_net
+      - private
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: joomla
@@ -19,7 +21,8 @@ services:
   phpmyadmin:
     image: custom-phpmyadmin:latest
     networks:
-      - custom_net
+      - private
+      - public
     environment:
       DB_HOST: database 
       DB_USER: root
@@ -30,7 +33,8 @@ services:
   joomla: 
     image: custom-joomla:latest
     networks:
-      - custom_net
+      - private
+      - public
     volumes:
       - /gfs/joomla-volume/components:/var/www/html/components
       - /gfs/joomla-volume/administrator:/var/www/html/administrator
@@ -51,12 +55,13 @@ services:
     deploy:
       mode: global
     networks:
-      - custom_net
+      - private
 
   grafana:
     image: custom-grafana:latest
     networks:
-      - custom_net
+      - private
+      - public
     volumes:
      - /gfs/grafana-volume/grafana.db:/var/lib/grafana/grafana.db
     deploy:
@@ -65,7 +70,7 @@ services:
   proxy:
     image: custom-proxy:latest
     networks:
-      - custom_net
+      - public
     ports:
       - 80:80
     deploy:
@@ -76,11 +81,11 @@ services:
     deploy:
       mode: global
     networks:
-      - custom_net
+      - private
 
   node-exporter:
     image: prom/node-exporter
     deploy:
       mode: global
     networks:
-      - custom_net
+      - private
