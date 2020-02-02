@@ -1,29 +1,17 @@
 version: "3.5"
 
 networks:
-  public_net:
-    ipam:
-      config:
-        - subnet: 192.168.50.0/24  
-  web_net:
-    ipam:
-      config:
-        - subnet: 192.168.100.0/24
-  db_net:
-    ipam:
-      config:
-        - subnet: 192.168.150.0/24
-  monitor_net:
-    ipam:
-      config:
-        - subnet: 192.168.200.0/24
+  public:
+    name: public
+  private:
+    name: private
 
 services:
   database:
     image: mariadb
     hostname: database
     networks:
-      - db_net
+      - private
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: joomla
@@ -33,8 +21,8 @@ services:
   phpmyadmin:
     image: custom-phpmyadmin:latest
     networks:
-      - db_net
-      - web_net
+      - private
+      - public
     environment:
       DB_HOST: database 
       DB_USER: root
@@ -45,8 +33,8 @@ services:
   joomla: 
     image: custom-joomla:latest
     networks:
-      - db_net
-      - web_net
+      - private
+      - public
     volumes:
       - /gfs/joomla-volume/components:/var/www/html/components
       - /gfs/joomla-volume/administrator:/var/www/html/administrator
@@ -67,13 +55,13 @@ services:
     deploy:
       mode: global
     networks:
-      - monitor_net
+      - private
 
   grafana:
     image: custom-grafana:latest
     networks:
-      - monitor_net
-      - web_net
+      - private
+      - public
     volumes:
      - /gfs/grafana-volume/grafana.db:/var/lib/grafana/grafana.db
     deploy:
@@ -82,8 +70,7 @@ services:
   proxy:
     image: custom-proxy:latest
     networks:
-      - public_net
-      - web_net
+      - public
     ports:
       - 80:80
     deploy:
@@ -99,11 +86,11 @@ services:
     deploy:
       mode: global
     networks:
-      - monitor_net
+      - private
 
   node-exporter:
     image: prom/node-exporter
     deploy:
       mode: global
     networks:
-      - monitor_net
+      - private
